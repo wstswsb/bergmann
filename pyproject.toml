@@ -7,12 +7,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+textual = "^0.61.0"
 
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.4"
 pyright = "^1.1.363"
 pre-commit = "^3.7.1"
+textual-dev = "^1.5.1"
 
 [build-system]
 requires = ["poetry-core"]

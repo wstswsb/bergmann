@@ -5,6 +5,9 @@ description = "Password manager"
 authors = ["Sviatoslav Bobryshev <wstswsb@gmail.com>"]
 readme = "README.md"
 
+[tool.poetry.scripts]
+bergmann = "bergmann.main:main"
+
 [tool.poetry.dependencies]
 python = "^3.11"
 textual = "^0.61.0"

@@ -9,8 +9,8 @@ readme = "README.md"
 bergmann = "bergmann.main:main"
 
 [tool.poetry.dependencies]
-python = "^3.11"
-textual = "^0.61.0"
+python = "^3.12"
+textual = "^0.61.1"
 
 
 [tool.poetry.group.dev.dependencies]

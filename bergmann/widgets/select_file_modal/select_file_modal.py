@@ -46,7 +46,7 @@ class SelectFileModal(ModalScreen[Path | None]):
 
     @on(Select.Changed)
     def changed_windows_volume(self, event: Select.Changed) -> None:
-        self._path = Path(event.value)
+        self._path = Path(str(event.value))
         directory_tree = self.query_one(BmnFilteredDirectoryTree)
         directory_tree.path = self._path
         directory_tree.refresh()

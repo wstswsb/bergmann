@@ -11,14 +11,14 @@ class SelectedFileUnixHeader(Static):
     #selected-file-info {
          height: auto;
     }
-    #selected-file-info > Label {
+    #selected-file-label {
         padding-bottom: 1;
     }
     """
 
     def compose(self) -> ComposeResult:
         with Container(id="selected-file-info"):
-            yield Label("Selected file:")
+            yield Label("Selected file:", id="selected-file-label")
             yield Input(
                 placeholder="filename",
                 id="selected-file-input",
@@ -30,6 +30,9 @@ class SelectedFileWindowsHeader(Static):
     DEFAULT_CSS = """
     #selected-file-info {
         height: auto;
+    }
+    #selected-file-label {
+        padding-bottom: 1;
     }
     #selected-file-horizontal {
         height: auto;
@@ -47,7 +50,7 @@ class SelectedFileWindowsHeader(Static):
 
     def compose(self) -> ComposeResult:
         with Container(id="selected-file-info"):
-            yield Label("Selected file:")
+            yield Label("Selected file:", id="selected-file-label")
             with Horizontal(id="selected-file-horizontal"):
                 with Container(id="select-container"):
                     items = [

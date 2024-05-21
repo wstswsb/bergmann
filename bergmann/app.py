@@ -1,6 +1,8 @@
+from textual import work
 from textual.app import App, ComposeResult
 from textual.widgets import Footer
 
+from bergmann.models.location import Location
 from bergmann.widgets.select_location_screen import SelectLocationScreen
 from bergmann.widgets.welcome import WelcomeWidget
 
@@ -16,5 +18,11 @@ class Bergmann(App[None]):
         yield WelcomeWidget(select_source_binding="s")
         yield Footer()
 
-    def action_select_source(self) -> None:
-        self.push_screen(SelectLocationScreen())
+    @work
+    async def action_select_source(self) -> None:
+        location = await self.push_screen_wait(SelectLocationScreen())
+        match location:
+            case Location("FS", _):
+                self.notify(f"Filesystem location selected: {location.value}")
+            case Location("WEB", _):
+                self.notify(f"Web location selected: {location.value}")

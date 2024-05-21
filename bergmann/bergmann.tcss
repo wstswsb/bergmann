@@ -10,33 +10,8 @@ Markdown {
 	align: center middle;
 }
 
-SelectLocationScreen {
-	align: center middle;
-}
-SelectLocationScreen > Container {
-	width: auto;
-	height: auto;
-}
 
-SelectLocationScreen > Container > Button {
-	width: auto;
-	height: auto;
-	margin: 1;
-}
-#file-button {
-	width: 100%;
-}
 
 SelectFileModal {
 	padding: 1;
-}
-SelectFileModal > Container {
-	width: 100%;
-	height: 100%;
-}
-SelectFileModal > Container > Input {
-	border: solid green;
-}
-SelectFileModal > Container > Label {
-	padding-bottom: 1;
 }

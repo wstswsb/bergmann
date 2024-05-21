@@ -9,9 +9,3 @@ Markdown {
 	height: 100%;
 	align: center middle;
 }
-
-
-
-SelectFileModal {
-	padding: 1;
-}

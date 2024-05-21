@@ -24,6 +24,11 @@ class SelectFileModal(ModalScreen[Path | None]):
         ("n", "create_file", "Create new file"),
         ("escape", "cancel_select_file", ""),
     )
+    DEFAULT_CSS = """
+    SelectFileModal {
+       padding: 1;
+    }
+    """
 
     _path: Path = Path("/")
 

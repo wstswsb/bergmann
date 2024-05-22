@@ -6,7 +6,7 @@ from textual.widgets import Markdown
 class WelcomeWidget(Widget):
     _welcome_text = """Welcome to the `Bergmann` app!  
 This app is designed for *securely* storing passwords.  
-To select a location for saving your passwords, press '{}'.  
+To select a location for saving your passwords, press **'{}'**.  
 """  # noqa: W291
 
     def __init__(self, select_source_binding: str, *children: Widget):

@@ -1,8 +1,9 @@
-import logging
 from pathlib import Path
 from typing import Iterable
 
 from textual.widgets import DirectoryTree
+
+from bergmann.common import logger
 
 
 class BmnFilteredDirectoryTree(DirectoryTree):
@@ -12,7 +13,7 @@ class BmnFilteredDirectoryTree(DirectoryTree):
                 if self._is_bmn_file(path) or self._is_not_empty_dir(path):
                     yield path
             except PermissionError:
-                logging.debug(f"permission error for {path}")
+                logger.warning(f"permission error for {path}")
 
     def _is_not_empty_dir(self, path: Path) -> bool:
         if not path.is_dir():

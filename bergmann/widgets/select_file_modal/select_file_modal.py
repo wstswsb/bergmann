@@ -22,7 +22,7 @@ from bergmann.widgets.select_file_modal.select_file_header import (
 
 
 class SelectFileModal(ModalScreen[Path | None]):
-    AUTO_FOCUS = "#directory-tree"
+    AUTO_FOCUS = "BmnFilteredDirectoryTree"
     BINDINGS = (
         Binding(key="n", action="create_file", description="Create new file"),
         Binding(key=RU_T, action="create_file", show=False),

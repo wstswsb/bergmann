@@ -14,11 +14,11 @@ from bergmann.validators.file_already_exists_validator import FileAlreadyExistsV
 class CreateFileModal(ModalScreen[Path | None]):
     BINDINGS = (("escape", "cancel_creation", ""),)
     DEFAULT_CSS = """
-    #create-file-container {
+    #create-file-modal__create-file-container {
         height: auto;
         margin: 1;
     }
-    #create-file-container > Label {
+    #create-file-modal__filename-label {
         padding-bottom: 1;
         padding-left: 1;
     }
@@ -29,8 +29,8 @@ class CreateFileModal(ModalScreen[Path | None]):
         super().__init__()
 
     def compose(self) -> ComposeResult:
-        with Container(id="create-file-container"):
-            yield Label("Filename:")
+        with Container(id="create-file-modal__create-file-container"):
+            yield Label("Filename:", id="create-file-modal__filename-label")
             yield Input(
                 placeholder="filename",
                 value=str(self.default_path),

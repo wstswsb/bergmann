@@ -4,10 +4,13 @@ from typing import cast
 
 from textual import on, work
 from textual.app import ComposeResult
+from textual.binding import Binding
+from textual.containers import Container
 from textual.screen import ModalScreen
 from textual.types import DirEntry
 from textual.widgets import DirectoryTree, Footer, Input, Select
 
+from bergmann.common.ru_keys import RU_T
 from bergmann.widgets.select_file_modal.bmn_filtered_directory_tree import (
     BmnFilteredDirectoryTree,
 )
@@ -21,12 +24,16 @@ from bergmann.widgets.select_file_modal.select_file_header import (
 class SelectFileModal(ModalScreen[Path | None]):
     AUTO_FOCUS = "#directory-tree"
     BINDINGS = (
-        ("n", "create_file", "Create new file"),
-        ("escape", "cancel_select_file", ""),
+        Binding(key="n", action="create_file", description="Create new file"),
+        Binding(key=RU_T, action="create_file", show=False),
+        Binding("escape", "cancel_select_file", ""),
     )
     DEFAULT_CSS = """
     SelectFileModal {
        padding: 1;
+    }
+    #select-file-modal__directory-tree {
+        padding: 0 1;
     }
     """
 
@@ -45,8 +52,8 @@ class SelectFileModal(ModalScreen[Path | None]):
                 yield SelectedFileWindowsHeader()
             case _:
                 yield SelectedFileUnixHeader()
-
-        yield BmnFilteredDirectoryTree(Path("/"), id="directory-tree")
+        with Container(id="select-file-modal__directory-tree"):
+            yield BmnFilteredDirectoryTree(Path("/"), id="directory-tree")
         yield Footer()
 
     @on(Select.Changed)

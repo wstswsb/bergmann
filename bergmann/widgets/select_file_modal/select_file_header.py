@@ -33,6 +33,7 @@ class SelectedFileWindowsHeader(Static):
     }
     #selected-file-label {
         padding-bottom: 1;
+        padding-left: 1;
     }
     #selected-file-horizontal {
         height: auto;

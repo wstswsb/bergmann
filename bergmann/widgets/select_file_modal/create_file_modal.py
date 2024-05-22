@@ -19,7 +19,8 @@ class CreateFileModal(ModalScreen[Path | None]):
         margin: 1;
     }
     #create-file-container > Label {
-        padding-bottom: 1
+        padding-bottom: 1;
+        padding-left: 1;
     }
     """
 

@@ -10,7 +10,7 @@ from textual.screen import ModalScreen
 from textual.types import DirEntry
 from textual.widgets import DirectoryTree, Footer, Input, Select
 
-from bergmann.common.ru_keys import RU_T
+from bergmann.common.ru_keys import RU_KEY_FOR_EN__N
 from bergmann.widgets.select_file_modal.bmn_filtered_directory_tree import (
     BmnFilteredDirectoryTree,
 )
@@ -25,7 +25,7 @@ class SelectFileModal(ModalScreen[Path | None]):
     AUTO_FOCUS = "BmnFilteredDirectoryTree"
     BINDINGS = (
         Binding(key="n", action="create_file", description="Create new file"),
-        Binding(key=RU_T, action="create_file", show=False),
+        Binding(key=RU_KEY_FOR_EN__N, action="create_file", show=False),
         Binding("escape", "cancel_select_file", ""),
     )
     DEFAULT_CSS = """

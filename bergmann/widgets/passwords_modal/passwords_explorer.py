@@ -10,6 +10,17 @@ from textual.screen import ModalScreen
 from textual.validation import Length
 from textual.widgets import Button, DataTable, Footer, Input, Label
 
+from bergmann.common.ru_keys import (
+    RU_KEY_FOR_EN__D,
+    RU_KEY_FOR_EN__E,
+    RU_KEY_FOR_EN__H,
+    RU_KEY_FOR_EN__J,
+    RU_KEY_FOR_EN__K,
+    RU_KEY_FOR_EN__L,
+    RU_KEY_FOR_EN__N,
+    RU_KEY_FOR_EN__P,
+    RU_KEY_FOR_EN__U,
+)
 from bergmann.di import di
 from bergmann.entities.item import Item
 
@@ -94,6 +105,10 @@ class PasswordsTable(DataTable):
         Binding("j", "cursor_down", "Cursor Down", show=False),
         Binding("l", "cursor_right", "Cursor Right", show=False),
         Binding("h", "cursor_left", "Cursor Left", show=False),
+        Binding(RU_KEY_FOR_EN__K, "cursor_up", "Cursor Up", show=False),
+        Binding(RU_KEY_FOR_EN__J, "cursor_down", "Cursor Down", show=False),
+        Binding(RU_KEY_FOR_EN__L, "cursor_right", "Cursor Right", show=False),
+        Binding(RU_KEY_FOR_EN__H, "cursor_left", "Cursor Left", show=False),
     ]
 
 
@@ -105,6 +120,11 @@ class PasswordsExplorer(ModalScreen[None]):
         Binding(key="d", action="copy_description", description="Copy description"),
         Binding(key="n", action="add_new_item", description="New"),
         Binding(key="e", action="edit_item", description="Edit"),
+        Binding(RU_KEY_FOR_EN__U, action="copy_login", show=False),
+        Binding(RU_KEY_FOR_EN__P, action="copy_password", show=False),
+        Binding(RU_KEY_FOR_EN__D, action="copy_description", show=False),
+        Binding(RU_KEY_FOR_EN__N, action="add_new_item", show=False),
+        Binding(RU_KEY_FOR_EN__E, action="edit_item", show=False),
         Binding(key="delete", action="delete_item", description="Delete"),
     )
 

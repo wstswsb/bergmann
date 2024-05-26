@@ -3,7 +3,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.widgets import Footer
 
-from bergmann.common.ru_keys import RU_A
+from bergmann.common.ru_keys import RU_KEY_FOR_EN__F
 from bergmann.di import di
 from bergmann.file_db_helper import FileDBHelper
 from bergmann.widgets.passwords_modal.initialize_new_db_modal import (
@@ -18,7 +18,7 @@ from bergmann.widgets.welcome import WelcomeWidget
 class Bergmann(App[None]):
     BINDINGS = [
         Binding(key="f", action="select_file", description="Select passwords file"),
-        Binding(key=RU_A, action="select_file", show=False),
+        Binding(key=RU_KEY_FOR_EN__F, action="select_file", show=False),
     ]
     CSS_PATH = "bergmann.tcss"
 

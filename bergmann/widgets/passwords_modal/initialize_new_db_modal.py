@@ -5,40 +5,43 @@ from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container
 from textual.screen import ModalScreen
-from textual.validation import Length, ValidationResult
+from textual.validation import Length
 from textual.widgets import Button, Footer, Input, Label
 
+from bergmann.di import di
+from bergmann.entities.item import Item
 
-class PasswordsModal(ModalScreen[str | None]):
+
+class InitializeNewDBModal(ModalScreen[list[Item] | None]):
     DEFAULT_CSS = """
-    #password-modal__text-wrapper {
+    #initialize-new-db-modal__text-wrapper {
         padding: 0 5;
         width: 1fr;
         height:1fr;
         align: center middle;
     }
-    #password-modal__title {
+    #initialize-new-db-modal__title {
         padding: 0 1;
         width: 100%;
         height: auto;
         text-align: left;
     }
-    #password-modal__input-wrapper {
+    #initialize-new-db-modal__input-wrapper {
         height: auto;
         margin: 1 0 0 0;
         align: left top;
     }
-    #password-modal__label {
+    #initialize-new-db-modal__label {
         padding: 0 1;
     }
-    #password-modal__input {
+    #initialize-new-db-modal__input {
         margin: 1 0 0 0;
     }
-    #password-modal__button {
+    #initialize-new-db-modal__button {
         height: auto;
         align: center top;
     }
-    #password-modal__init-db-button {
+    #initialize-new-db-modal__init-db-button {
         margin: 1 0 0 0;
     }
     """
@@ -52,33 +55,41 @@ class PasswordsModal(ModalScreen[str | None]):
         classes: str | None = None,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes)
-        self.path = path
+        self._interactor = di.passwords_interactor
+        self._failures_presenter = di.failures_presenter
+        self._path = path
 
     def action_quit(self) -> None:
         self.dismiss(None)
 
     def compose(self) -> ComposeResult:
         with Container():
-            with Container(id="password-modal__text-wrapper"):
+            with Container(id="initialize-new-db-modal__text-wrapper"):
                 yield Label(
                     renderable=(
                         "The file: "
-                        f"[italic bold red]{self.path.name}[/italic bold red] "
+                        f"[italic bold red]{self._path.name}[/italic bold red] "
                         "is empty. \n"
                         "To initialize the database, enter a new master password."
                     ),
-                    id="password-modal__title",
+                    id="initialize-new-db-modal__title",
                 )
-                with Container(id="password-modal__input-wrapper"):
-                    yield Label("Master password:", id="password-modal__label")
+                with Container(id="initialize-new-db-modal__input-wrapper"):
+                    yield Label(
+                        "Master password:",
+                        id="initialize-new-db-modal__label",
+                    )
                     yield Input(
                         placeholder="master-password",
-                        id="password-modal__input",
+                        id="initialize-new-db-modal__input",
                         password=True,
                         validators=[Length(minimum=8)],
                     )
-                with Container(id="password-modal__button"):
-                    yield Button("Set password", id="password-modal__init-db-button")
+                with Container(id="initialize-new-db-modal__button"):
+                    yield Button(
+                        "Set password",
+                        id="initialize-new-db-modal__init-db-button",
+                    )
         yield Footer()
 
     @on(Button.Pressed)
@@ -86,14 +97,18 @@ class PasswordsModal(ModalScreen[str | None]):
         master_password_input = self.query_one(Input)
         self.handle_password_submit(master_password_input)
 
-    @on(Input.Submitted, selector="#password-modal__input")
+    @on(Input.Submitted, selector="#initialize-new-db-modal__input")
     def handle_input_submitted(self, event: Input.Submitted) -> None:
         self.handle_password_submit(event.input)
 
     def handle_password_submit(self, input_: Input) -> None:
         try:
             self.__check_input_value_valid(input_)
-            self.dismiss(input_.value)
+            master_password = input_.value
+            self._interactor.initialize_key(master_password)
+            self._interactor.initialize_new_db(self._path)
+            content = self._interactor.decrypt(self._path, master_password)
+            self.dismiss(content)
         except Exception as e:
             self.notify(
                 message=f"password invalid:\n{e!s}",
@@ -105,8 +120,4 @@ class PasswordsModal(ModalScreen[str | None]):
         if validation_result is None:
             return
         if not validation_result.is_valid:
-            failures = self.__present_failures(validation_result)
-            raise ValueError(failures)
-
-    def __present_failures(self, validation_result: ValidationResult) -> str:
-        return "- " + "\n- ".join(validation_result.failure_descriptions)
+            raise ValueError(self._failures_presenter(validation_result))

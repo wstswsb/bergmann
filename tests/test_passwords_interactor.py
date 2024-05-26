@@ -1,6 +1,7 @@
 import hashlib
-import json
 from pathlib import Path
+
+import pytest
 
 from bergmann.convention import (
     CONTENT_HASH_SIZE,
@@ -9,12 +10,13 @@ from bergmann.convention import (
     DB_MAGIC_BYTES,
     DB_SALT_SIZE,
 )
-from bergmann.passwords_interactor import PasswordsInteractor
+from bergmann.entities.item import Item
+from bergmann.passwords_interactor import InvalidHeader, PasswordsInteractor
 
 
 def test_initialize_new_db(tmp_path: Path) -> None:
     # Arrange
-    new_db_path = Path("new-db.bmn")
+    new_db_path = tmp_path / "new.bmn"
     password = "test-user-password"
     sut = PasswordsInteractor()
     sut.initialize_key(password)
@@ -36,16 +38,8 @@ def test_initialize_new_db(tmp_path: Path) -> None:
     content_hash = db_bytes[offset : offset + CONTENT_HASH_SIZE]
     offset += CONTENT_HASH_SIZE
     content_bytes = db_bytes[offset:]
-    encrypted_content = json.loads(content_bytes)
-    encrypted_item = encrypted_content[0]
-    decrypted_item = [
-        sut.cypher_impl.decrypt(bytes.fromhex(encrypted_item[0])).decode("utf8"),
-        sut.cypher_impl.decrypt(bytes.fromhex(encrypted_item[1])).decode("utf8"),
-        sut.cypher_impl.decrypt(bytes.fromhex(encrypted_item[2])).decode("utf8"),
-    ]
-    content = [decrypted_item]
-    plain_string = json.dumps(content).encode("utf8")
-    expected_content_hash = hashlib.sha256(plain_string).digest()
+    decrypted_content = sut.cypher_impl.decrypt(content_bytes)
+    expected_content_hash = hashlib.sha256(decrypted_content).digest()
     assert magic_bytes == DB_MAGIC_BYTES
     assert alg_bytes == DB_ALG_BYTES
     assert salt_bytes == sut.cypher_impl.key_meta.salt
@@ -53,6 +47,126 @@ def test_initialize_new_db(tmp_path: Path) -> None:
     assert content_hash == expected_content_hash
 
 
-def test_load_db(tmp_path: Path) -> None:
+def test_check_header__invalid_magic_bytes(tmp_path: Path) -> None:
     # Arrange
-    pass
+    db_path = tmp_path / "new.bmn"
+    db_path.write_bytes(b"invalid-bytes")
+
+    sut = PasswordsInteractor()
+
+    # Act\Assert
+    with pytest.raises(InvalidHeader) as e:
+        sut.check_header(db_path)
+
+    assert e.value.reason == "magic-bytes"
+
+
+def test_check_header__invalid_alg_bytes(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "new.bmn"
+    db_path.write_bytes(DB_MAGIC_BYTES + b"invalid-alg-bytes")
+
+    sut = PasswordsInteractor()
+
+    # Act\Assert
+    with pytest.raises(InvalidHeader) as e:
+        sut.check_header(db_path)
+
+    assert e.value.reason == "alg"
+
+
+def test_check_header__invalid_salt_size(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "new.bmn"
+    db_path.write_bytes(DB_MAGIC_BYTES + DB_ALG_BYTES + b"short-salt")
+
+    sut = PasswordsInteractor()
+
+    # Act\Assert
+    with pytest.raises(InvalidHeader) as e:
+        sut.check_header(db_path)
+
+    assert e.value.reason == "salt"
+
+
+def test_check_header__invalid_iteration_bytes(tmp_path: Path) -> None:
+    # Arrange
+    db_path = Path("new-db.bmn")
+    db_path.write_bytes(
+        b"".join(
+            (
+                DB_MAGIC_BYTES,
+                DB_ALG_BYTES,
+                b"s" * DB_SALT_SIZE,
+                b"////",
+            )
+        )
+    )
+
+    sut = PasswordsInteractor()
+
+    # Act\Assert
+    with pytest.raises(InvalidHeader) as e:
+        sut.check_header(db_path)
+
+    assert e.value.reason == "iterations"
+
+
+def test_check_header__invalid_content_hash_size(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "new.bmn"
+    db_path.write_bytes(
+        b"".join(
+            (
+                DB_MAGIC_BYTES,
+                DB_ALG_BYTES,
+                b"s" * DB_SALT_SIZE,
+                DB_ITERATIONS_BYTES,
+                b"short-hash",
+            )
+        )
+    )
+    sut = PasswordsInteractor()
+
+    # Act\Assert
+    with pytest.raises(InvalidHeader) as e:
+        sut.check_header(db_path)
+
+    assert e.value.reason == "content-hash"
+
+
+def test_decrypt_content(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "new.bmn"
+    sut = PasswordsInteractor()
+    sut.initialize_key("test-password")
+    sut.initialize_new_db(db_path)
+
+    # Act
+    result = sut.decrypt(db_path, "test-password")
+
+    # Assert
+    assert isinstance(result, list)
+    assert len(result) == 1
+    item = result[0]
+    assert isinstance(item, Item)
+    assert item.description.startswith("site: vk.com")
+    assert item.login.startswith("example login")
+    assert item.password.startswith("example password")
+
+
+def test_update(tmp_path: Path) -> None:
+    # Arrange
+    db_path = tmp_path / "new.bmn"
+    sut = PasswordsInteractor()
+    sut.initialize_key("test-password")
+    sut.initialize_new_db(db_path)
+    items = sut.decrypt(db_path, "test-password")
+    items.append(Item.example())
+
+    # Act
+    sut.update(items, db_path)
+
+    # assert
+    loaded_items = sut.decrypt(db_path, "test-password")
+    assert len(loaded_items) == 2

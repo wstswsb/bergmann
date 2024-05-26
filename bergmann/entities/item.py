@@ -15,7 +15,7 @@ class Item:
     @classmethod
     def example(cls) -> Self:
         return cls(
-            description=f"site: vk.com: {os.urandom(6)}",
-            login=f"example login: {os.urandom(6)}",
-            password=f"example password: {os.urandom(6)}",
+            description=f"site: vk.com: {os.urandom(2).hex()}",
+            login=f"example login: {os.urandom(2).hex()}",
+            password=f"example password: {os.urandom(2).hex()}",
         )

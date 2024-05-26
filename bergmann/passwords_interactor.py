@@ -122,7 +122,7 @@ class PasswordsInteractor:
         return content
 
     def initialize_new_db(self, path: Path) -> None:
-        db_meta = DBMeta.from_key_meta(self._cypher_impl.key_meta)
+        db_meta = DBMeta.from_key_meta(self.cypher_impl.key_meta)
         default_content = [Item.example()]
         db_meta.content_hash = self._calculate_content_hash(default_content)
         encrypted_content = self._encrypt_content(default_content)

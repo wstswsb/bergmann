@@ -13,7 +13,7 @@ from bergmann.entities.item import Item
 from bergmann.passwords_interactor import IntegrityError, InvalidHeader
 
 
-class LoadDBModal(ModalScreen[list[Item]]):
+class LoadDBModal(ModalScreen[list[Item] | None]):
     DEFAULT_CSS = """
     #load-new-db-modal__text-wrapper {
         padding: 0 5;

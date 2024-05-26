@@ -20,7 +20,7 @@ class KuzCypher:
     def __init__(self, password: str, key_meta: KeyMeta):
         self._key_meta = key_meta
         key_bytes = self._build_key_bytes(password.encode("utf8"), key_meta)
-        self._crypto_impl = Grassnechik(BinaryKey(key_bytes))  # todo: less strict
+        self._crypto_impl = Grassnechik(BinaryKey(key_bytes))  # type: ignore
 
     @property
     def key_meta(self) -> KeyMeta:
@@ -35,10 +35,10 @@ class KuzCypher:
             cypher_blocks.append(bytes(encrypted))
         return b"".join(cypher_blocks)
 
-    def decrypt(self, cypher_bytes: bytes) -> bytes:
+    def decrypt(self, cypher_text: bytes) -> bytes:
         plain_blocks: list[bytes] = []
-        for block_index in range(0, len(cypher_bytes), self.block_size):
-            block = cypher_bytes[block_index : block_index + self.block_size]
+        for block_index in range(0, len(cypher_text), self.block_size):
+            block = cypher_text[block_index : block_index + self.block_size]
             decrypted = self._crypto_impl.decrypt(tuple(block))
             plain_blocks.append(bytes(decrypted))
         plain_text_with_padding = b"".join(plain_blocks)

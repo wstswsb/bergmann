@@ -91,7 +91,7 @@ def test_check_header__invalid_salt_size(tmp_path: Path) -> None:
 
 def test_check_header__invalid_iteration_bytes(tmp_path: Path) -> None:
     # Arrange
-    db_path = Path("new-db.bmn")
+    db_path = tmp_path / "new.bmn"
     db_path.write_bytes(
         b"".join(
             (

@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from textual import work
 from textual.app import App, ComposeResult
 from textual.binding import Binding
@@ -5,7 +7,8 @@ from textual.widgets import Footer
 
 from bergmann.common.ru_keys import RU_KEY_FOR_EN__F
 from bergmann.di import di
-from bergmann.file_db_helper import FileDBHelper
+from bergmann.entities.item import Item
+from bergmann.entities.load_db_result import LoadDBResult
 from bergmann.widgets.passwords_modal.initialize_new_db_modal import (
     InitializeNewDBModal,
 )
@@ -20,18 +23,11 @@ class Bergmann(App[None]):
         Binding(key="f", action="select_file", description="Select passwords file"),
         Binding(key=RU_KEY_FOR_EN__F, action="select_file", show=False),
     ]
-    CSS_PATH = "bergmann.tcss"
 
     def __init__(self, debug: bool):
         super().__init__()
-        self._file_db_helper = FileDBHelper()
-        self._passwords_interactor = di.passwords_interactor
+        self._gateway = di.gateway
         self._debug = debug
-
-    def _handle_exception(self, error: Exception) -> None:
-        if not self._debug:
-            raise error
-        super()._handle_exception(error)
 
     def compose(self) -> ComposeResult:
         yield WelcomeWidget(select_source_binding="f")
@@ -39,17 +35,36 @@ class Bergmann(App[None]):
 
     @work
     async def action_select_file(self) -> None:
-        path = await self.app.push_screen_wait(SelectFileModal())
+        path = await self._select_file()
         if path is None:
             self.notify("file not selected", severity="warning")
             return
-        if self._file_db_helper.is_emtpy(path):
-            content = await self.app.push_screen_wait(InitializeNewDBModal(path))
-
-            self.notify(f"new db initialized: {path=}")
-        else:
-            content = await self.app.push_screen_wait(LoadDBModal(path))
-        if content is None:
+        load_db_result = await self._load_db(path)
+        if not load_db_result.content:
             self.notify("file not selected", severity="warning")
             return
+        if load_db_result.new_db_initialized:
+            self.notify(f"new db initialized: {path=}")
+        await self._show_passwords_explorer(load_db_result.content, path)
+
+    async def _show_passwords_explorer(self, content: list[Item], path: Path) -> None:
         await self.app.push_screen_wait(PasswordsExplorer(content, path))
+
+    async def _select_file(self) -> Path | None:
+        return await self.app.push_screen_wait(SelectFileModal())
+
+    async def _load_db(self, path: Path) -> LoadDBResult:
+        if not self._gateway.is_file_empty(path):
+            return LoadDBResult.existent_db(await self._load_existent_db(path))
+        return LoadDBResult.new_db(await self._initialize_new_db(path))
+
+    async def _initialize_new_db(self, path: Path) -> list[Item] | None:
+        return await self.app.push_screen_wait(InitializeNewDBModal(path))
+
+    async def _load_existent_db(self, path: Path) -> list[Item] | None:
+        return await self.app.push_screen_wait(LoadDBModal(path))
+
+    def _handle_exception(self, error: Exception) -> None:
+        if not self._debug:
+            raise error
+        super()._handle_exception(error)

@@ -4,6 +4,18 @@ from textual.widgets import Markdown
 
 
 class WelcomeWidget(Widget):
+    DEFAULT_CSS = """
+    WelcomeWidget {
+        height: 100%;
+        width: 100%;
+        align: center middle;
+    }
+    Markdown {
+        width: 70%;
+        height: 100%;
+        align: center middle;
+    }
+"""
     _welcome_text = """Welcome to the `Bergmann` app!  
 This app is designed for *securely* storing passwords.  
 To select a location for saving your passwords, press **'{}'**.  

@@ -9,38 +9,3 @@ Markdown {
 	height: 100%;
 	align: center middle;
 }
-
-#passwords-explorer__selected_file {
-    height: auto;
-    padding: 1 2 1 2;
-
-}
-#passwords-explorer__data-table {
-    padding: 0 1 1 1;
-    border: green;
-}
-
-#new-item-modal__inputs-wrapper {
-    height: 1fr;
-    width: auto;
-    padding: 0 5;
-    align: center middle;
-}
-#new-item-modal__description {
-    height: auto;
-}
-#new-item-modal__login {
-    height: auto;
-    margin: 1 0 0 0;
-}
-#new-item-modal__password {
-    height: auto;
-    margin: 1 0 0 0;
-
-
-}
-#new-item-modal__button {
-    height: auto;
-    align: center top;
-    margin: 1 0 0 0;
-}

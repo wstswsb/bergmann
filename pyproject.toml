@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "bergmann"
-version = "0.0.0"
+version = "0.0.2"
 description = "Password manager"
 authors = ["Sviatoslav Bobryshev <wstswsb@gmail.com>"]
 readme = "README.md"

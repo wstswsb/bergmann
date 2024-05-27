@@ -1,118 +1,38 @@
 from pathlib import Path
 
 import pyperclip
-from textual import on, work
+from textual import work
 from textual.app import ComposeResult
 from textual.binding import Binding
 from textual.containers import Container
 from textual.coordinate import Coordinate
 from textual.screen import ModalScreen
-from textual.validation import Length
-from textual.widgets import Button, DataTable, Footer, Input, Label
+from textual.widgets import DataTable, Footer, Label
 
 from bergmann.common.ru_keys import (
     RU_KEY_FOR_EN__D,
     RU_KEY_FOR_EN__E,
-    RU_KEY_FOR_EN__H,
-    RU_KEY_FOR_EN__J,
-    RU_KEY_FOR_EN__K,
-    RU_KEY_FOR_EN__L,
     RU_KEY_FOR_EN__N,
     RU_KEY_FOR_EN__P,
     RU_KEY_FOR_EN__U,
 )
 from bergmann.di import di
 from bergmann.entities.item import Item
-
-
-class ItemFieldsModal(ModalScreen[Item | None]):
-    BINDINGS = (Binding(key="escape", action="quit", description="Quit"),)
-
-    def __init__(
-        self,
-        description: str = "",
-        login: str = "",
-        password: str = "",
-        name: str | None = None,
-        id: str | None = None,
-        classes: str | None = None,
-    ) -> None:
-        super().__init__(name=name, id=id, classes=classes)
-        self.default_description = description
-        self.default_login = login
-        self.default_password = password
-
-    def action_quit(self):
-        self.dismiss(None)
-
-    def compose(self) -> ComposeResult:
-        with Container():
-            with Container(id="new-item-modal__inputs-wrapper"):
-                with Container(id="new-item-modal__description"):
-                    yield Label("Description:")
-                    yield Input(
-                        value=self.default_description,
-                        placeholder="description",
-                        id="description-input",
-                        validators=Length(minimum=1),
-                    )
-                with Container(id="new-item-modal__login"):
-                    yield Label("Login:")
-                    yield Input(
-                        value=self.default_login,
-                        placeholder="login",
-                        id="login-input",
-                        validators=Length(minimum=1),
-                    )
-                with Container(id="new-item-modal__password"):
-                    yield Label("Password:")
-                    yield Input(
-                        value=self.default_password,
-                        placeholder="password",
-                        id="password-input",
-                        password=True,
-                        validators=Length(minimum=1),
-                    )
-                with Container(id="new-item-modal__button"):
-                    yield Button("Save")
-        yield Footer()
-
-    @on(Button.Pressed)
-    def handle_button_pressed(self) -> None:
-        description_input = self.query_one("#description-input", Input)
-        login_input = self.query_one("#login-input", Input)
-        password_input = self.query_one("#password-input", Input)
-
-        errors = []
-        if not description_input.is_valid:
-            errors.append("description cannot be empty")
-        if not login_input.is_valid:
-            errors.append("login cannot be empty")
-        if not password_input.is_valid:
-            errors.append("password cannot be empty")
-        if errors:
-            self.notify("- " + "\n- ".join(errors), severity="error")
-            return
-        self.dismiss(
-            Item(description_input.value, login_input.value, password_input.value)
-        )
-
-
-class PasswordsTable(DataTable):
-    BINDINGS = [
-        *DataTable.BINDINGS,
-        Binding("k", "cursor_up", "Cursor Up", show=False),
-        Binding("j", "cursor_down", "Cursor Down", show=False),
-        Binding("l", "cursor_right", "Cursor Right", show=False),
-        Binding("h", "cursor_left", "Cursor Left", show=False),
-        Binding(RU_KEY_FOR_EN__K, "cursor_up", "Cursor Up", show=False),
-        Binding(RU_KEY_FOR_EN__J, "cursor_down", "Cursor Down", show=False),
-        Binding(RU_KEY_FOR_EN__L, "cursor_right", "Cursor Right", show=False),
-        Binding(RU_KEY_FOR_EN__H, "cursor_left", "Cursor Left", show=False),
-    ]
+from bergmann.widgets.passwords_modal.item_fields_modal import ItemFieldsModal
+from bergmann.widgets.passwords_modal.passwords_table import PasswordsTable
 
 
 class PasswordsExplorer(ModalScreen[None]):
+    DEFAULT_CSS = """
+    #passwords-explorer__selected_file {
+        height: auto;
+        padding: 1 2 1 2;
+    }
+    #passwords-explorer__data-table {
+        padding: 0 1 1 1;
+        border: green;
+    }
+    """
     BINDINGS = (
         Binding(key="escape", action="quit", description="Quit"),
         Binding(key="u", action="copy_login", description="Copy login"),

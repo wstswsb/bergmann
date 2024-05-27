@@ -22,10 +22,16 @@ class Bergmann(App[None]):
     ]
     CSS_PATH = "bergmann.tcss"
 
-    def __init__(self):
+    def __init__(self, debug: bool):
         super().__init__()
         self._file_db_helper = FileDBHelper()
         self._passwords_interactor = di.passwords_interactor
+        self._debug = debug
+
+    def _handle_exception(self, error: Exception) -> None:
+        if not self._debug:
+            raise error
+        super()._handle_exception(error)
 
     def compose(self) -> ComposeResult:
         yield WelcomeWidget(select_source_binding="f")
@@ -42,7 +48,6 @@ class Bergmann(App[None]):
 
             self.notify(f"new db initialized: {path=}")
         else:
-            # self._passwords_interactor.check_header(path)
             content = await self.app.push_screen_wait(LoadDBModal(path))
         if content is None:
             self.notify("file not selected", severity="warning")

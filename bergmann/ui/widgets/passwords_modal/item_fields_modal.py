@@ -30,7 +30,7 @@ class ItemFieldsModal(ModalScreen[Item | None]):
     #item-fields-modal__password {
         height: auto;
         margin: 1 0 0 0;
-    }
+     }
     #item-fields-modal__button {
         height: auto;
         align: center top;

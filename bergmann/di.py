@@ -28,6 +28,7 @@ class DI:
     def gateway(self) -> Gateway:
         return Gateway(
             files_helper=self.files_helper,
+            passwords_interactor=self.passwords_interactor,
         )
 
 

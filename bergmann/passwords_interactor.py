@@ -43,19 +43,12 @@ class IntegrityError(Exception):
 class PasswordsInteractor:
     def __init__(self):
         self._cypher_impl: ICypher | None = None
-        self._repository: Repository | None = None
 
     @property
     def cypher_impl(self) -> ICypher:
         if self._cypher_impl is None:
             raise ValueError("there no ICypher implementation set")
         return self._cypher_impl
-
-    @property
-    def repository(self) -> Repository:
-        if self._repository is None:
-            raise ValueError("there not Repository set")
-        return self._repository
 
     def check_header(self, path: Path) -> None:
         raw_db_meta = self.read_raw_db_meta(path)
@@ -163,6 +156,10 @@ class PasswordsInteractor:
 
     def initialize_key(
         self, master_password: str, key_meta: KeyMeta | None = None
-    ) -> None:
+    ) -> bytes:
         key_meta = key_meta or KeyMeta()
         self._cypher_impl = KuzCypher(master_password, key_meta)
+        return key_meta.salt
+
+    def delete_key(self) -> None:
+        self._cypher_impl = None

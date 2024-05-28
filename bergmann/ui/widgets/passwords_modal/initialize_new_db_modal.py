@@ -10,39 +10,39 @@ from textual.widgets import Button, Footer, Input, Label
 
 from bergmann.di import di
 from bergmann.entities.item import Item
-from bergmann.passwords_interactor import IntegrityError, InvalidHeader
+from bergmann.ui.helpers import check_input_value_valid
 
 
-class LoadDBModal(ModalScreen[list[Item] | None]):
+class InitializeNewStoreModal(ModalScreen[list[Item] | None]):
     DEFAULT_CSS = """
-    #load-new-db-modal__text-wrapper {
+    #initialize-new-store-modal__text-wrapper {
         padding: 0 5;
         width: 1fr;
         height:1fr;
         align: center middle;
     }
-    #load-new-db-modal__title {
+    #initialize-new-store-modal__title {
         padding: 0 1;
         width: 100%;
         height: auto;
         text-align: left;
     }
-    #load-new-db-modal__input-wrapper {
+    #initialize-new-store-modal__input-wrapper {
         height: auto;
         margin: 1 0 0 0;
         align: left top;
     }
-    #load-new-db-modal__label {
+    #initialize-new-store-modal__label {
         padding: 0 1;
     }
-    #load-new-db-modal__input {
+    #initialize-new-store-modal__input {
         margin: 1 0 0 0;
     }
-    #load-new-db-modal__button {
+    #initialize-new-store-modal__button {
         height: auto;
         align: center top;
     }
-    #load-new-db-modal__init-db-button {
+    #initialize-new-store-modal__init-db-button {
         margin: 1 0 0 0;
     }
     """
@@ -56,8 +56,7 @@ class LoadDBModal(ModalScreen[list[Item] | None]):
         classes: str | None = None,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes)
-        self._interactor = di.passwords_interactor
-        self._failures_presenter = di.failures_presenter
+        self._gateway = di.gateway
         self._path = path
 
     def action_quit(self) -> None:
@@ -65,31 +64,31 @@ class LoadDBModal(ModalScreen[list[Item] | None]):
 
     def compose(self) -> ComposeResult:
         with Container():
-            with Container(id="load-new-db-modal__text-wrapper"):
+            with Container(id="initialize-new-store-modal__text-wrapper"):
                 yield Label(
                     renderable=(
                         "The file: "
                         f"[italic bold red]{self._path.name}[/italic bold red] "
-                        "encrypted. \n"
-                        "To decrypt the database, enter a new master password."
+                        "is empty. \n"
+                        "To initialize the database, enter a new master password."
                     ),
-                    id="load-new-db-modal__title",
+                    id="initialize-new-store-modal__title",
                 )
-                with Container(id="load-new-db-modal__input-wrapper"):
+                with Container(id="initialize-new-store-modal__input-wrapper"):
                     yield Label(
                         "Master password:",
-                        id="load-new-db-modal__label",
+                        id="initialize-new-store-modal__label",
                     )
                     yield Input(
                         placeholder="master-password",
-                        id="load-new-db-modal__input",
+                        id="initialize-new-store-modal__input",
                         password=True,
                         validators=[Length(minimum=8)],
                     )
-                with Container(id="load-new-db-modal__button"):
+                with Container(id="initialize-new-store-modal__button"):
                     yield Button(
                         "Set password",
-                        id="load-new-db-modal__init-db-button",
+                        id="initialize-new-store-modal__init-db-button",
                     )
         yield Footer()
 
@@ -98,35 +97,18 @@ class LoadDBModal(ModalScreen[list[Item] | None]):
         master_password_input = self.query_one(Input)
         self.handle_password_submit(master_password_input)
 
-    @on(Input.Submitted, selector="#load-new-db-modal__input")
+    @on(Input.Submitted, selector="#initialize-new-store-modal__input")
     def handle_input_submitted(self, event: Input.Submitted) -> None:
         self.handle_password_submit(event.input)
 
     def handle_password_submit(self, input_: Input) -> None:
         try:
-            self.__check_input_value_valid(input_)
-            content = self._interactor.decrypt(self._path, master_password=input_.value)
+            check_input_value_valid(input_)
+            master_password = input_.value
+            content = self._gateway.init_new_store(self._path, master_password)
             self.dismiss(content)
-        except IntegrityError:
-            self.notify(
-                message="decrypted content different than original",
-                severity="error",
-            )
-
-        except InvalidHeader as e:
-            self.notify(
-                f"cannot read db from {self._path=} "
-                f"file header contains errors: invalid {e.reason}"
-            )
         except Exception as e:
             self.notify(
                 message=f"password invalid:\n{e!s}",
                 severity="error",
             )
-
-    def __check_input_value_valid(self, input_: Input) -> None:
-        validation_result = input_.validate(input_.value)
-        if validation_result is None:
-            return
-        if not validation_result.is_valid:
-            raise ValueError(self._failures_presenter(validation_result))

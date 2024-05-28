@@ -18,8 +18,8 @@ from bergmann.common.ru_keys import (
 )
 from bergmann.di import di
 from bergmann.entities.item import Item
-from bergmann.widgets.passwords_modal.item_fields_modal import ItemFieldsModal
-from bergmann.widgets.passwords_modal.passwords_table import PasswordsTable
+from bergmann.ui.widgets.passwords_modal.item_fields_modal import ItemFieldsModal
+from bergmann.ui.widgets.passwords_modal.passwords_table import PasswordsTable
 
 
 class PasswordsExplorer(ModalScreen[None]):
@@ -57,8 +57,7 @@ class PasswordsExplorer(ModalScreen[None]):
         classes: str | None = None,
     ) -> None:
         super().__init__(name=name, id=id, classes=classes)
-        self._interactor = di.passwords_interactor
-        self._failures_presenter = di.failures_presenter
+        self._gateway = di.gateway
         self._content = content
         self._path = path
 
@@ -82,7 +81,7 @@ class PasswordsExplorer(ModalScreen[None]):
         if new_item is None:
             return
         self._content[row_index] = new_item
-        self._interactor.update(self._content, self._path)
+        self._gateway.update(self._path, self._content)
         dt.update_cell_at(login_coordinate, new_item.login)
         dt.update_cell_at(description_coordinate, new_item.description)
 
@@ -93,7 +92,7 @@ class PasswordsExplorer(ModalScreen[None]):
         row_key, _ = dt.coordinate_to_cell_key(dt.cursor_coordinate)
         row_index = dt.cursor_row
         self._content.pop(row_index)
-        self._interactor.update(self._content, self._path)
+        self._gateway.update(self._path, self._content)
         dt.remove_row(row_key)
 
     @work
@@ -104,7 +103,7 @@ class PasswordsExplorer(ModalScreen[None]):
             return
         self._content.append(item)
         dt = self.query_one(DataTable)
-        self._interactor.update(self._content, self._path)
+        self._gateway.update(self._path, self._content)
         dt.add_row(item.login, item.description)
 
     def action_copy_login(self) -> None:

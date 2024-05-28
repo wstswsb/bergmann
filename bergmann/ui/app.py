@@ -9,13 +9,13 @@ from bergmann.common.ru_keys import RU_KEY_FOR_EN__F
 from bergmann.di import di
 from bergmann.entities.item import Item
 from bergmann.entities.load_db_result import LoadDBResult
-from bergmann.widgets.passwords_modal.initialize_new_db_modal import (
-    InitializeNewDBModal,
+from bergmann.ui.widgets.passwords_modal.initialize_new_db_modal import (
+    InitializeNewStoreModal,
 )
-from bergmann.widgets.passwords_modal.load_db_modal import LoadDBModal
-from bergmann.widgets.passwords_modal.passwords_explorer import PasswordsExplorer
-from bergmann.widgets.select_file_modal.select_file_modal import SelectFileModal
-from bergmann.widgets.welcome import WelcomeWidget
+from bergmann.ui.widgets.passwords_modal.load_db_modal import LoadDBModal
+from bergmann.ui.widgets.passwords_modal.passwords_explorer import PasswordsExplorer
+from bergmann.ui.widgets.select_file_modal.select_file_modal import SelectFileModal
+from bergmann.ui.widgets.welcome import WelcomeWidget
 
 
 class Bergmann(App[None]):
@@ -46,6 +46,7 @@ class Bergmann(App[None]):
         if load_db_result.new_db_initialized:
             self.notify(f"new db initialized: {path=}")
         await self._show_passwords_explorer(load_db_result.content, path)
+        self._gateway.clean()
 
     async def _show_passwords_explorer(self, content: list[Item], path: Path) -> None:
         await self.app.push_screen_wait(PasswordsExplorer(content, path))
@@ -59,7 +60,7 @@ class Bergmann(App[None]):
         return LoadDBResult.new_db(await self._initialize_new_db(path))
 
     async def _initialize_new_db(self, path: Path) -> list[Item] | None:
-        return await self.app.push_screen_wait(InitializeNewDBModal(path))
+        return await self.app.push_screen_wait(InitializeNewStoreModal(path))
 
     async def _load_existent_db(self, path: Path) -> list[Item] | None:
         return await self.app.push_screen_wait(LoadDBModal(path))

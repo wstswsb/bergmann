@@ -7,8 +7,10 @@ from textual.screen import ModalScreen
 from textual.validation import ValidationResult
 from textual.widgets import Input, Label
 
-from bergmann.validators.bmn_filename_validator import BmnFilenameValidator
-from bergmann.validators.file_already_exists_validator import FileAlreadyExistsValidator
+from bergmann.ui.validators.bmn_filename_validator import BmnFilenameValidator
+from bergmann.ui.validators.file_already_exists_validator import (
+    FileAlreadyExistsValidator,
+)
 
 
 class CreateFileModal(ModalScreen[Path | None]):

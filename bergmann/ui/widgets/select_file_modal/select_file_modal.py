@@ -11,11 +11,11 @@ from textual.types import DirEntry
 from textual.widgets import DirectoryTree, Footer, Input, Select
 
 from bergmann.common.ru_keys import RU_KEY_FOR_EN__N
-from bergmann.widgets.select_file_modal.bmn_filtered_directory_tree import (
+from bergmann.ui.widgets.select_file_modal.bmn_filtered_directory_tree import (
     BmnFilteredDirectoryTree,
 )
-from bergmann.widgets.select_file_modal.create_file_modal import CreateFileModal
-from bergmann.widgets.select_file_modal.select_file_header import (
+from bergmann.ui.widgets.select_file_modal.create_file_modal import CreateFileModal
+from bergmann.ui.widgets.select_file_modal.select_file_header import (
     SelectedFileUnixHeader,
     SelectedFileWindowsHeader,
 )

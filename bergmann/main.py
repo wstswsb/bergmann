@@ -1,6 +1,6 @@
 import sys
 
-from bergmann.app import Bergmann
+from bergmann.ui.app import Bergmann
 
 
 def global_exception_handler(exception_type, exception, traceback):

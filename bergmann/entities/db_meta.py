@@ -1,7 +1,8 @@
 from dataclasses import dataclass, field
-from typing import Self
+from typing import TYPE_CHECKING, Self
 
-from bergmann.key import KeyMeta
+if TYPE_CHECKING:
+    from bergmann.key import KeyMeta
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,7 +36,7 @@ class DBMeta:
         )
 
     @classmethod
-    def from_key_meta(cls, key_meta: KeyMeta) -> Self:
+    def from_key_meta(cls, key_meta: "KeyMeta") -> Self:
         return cls(salt=key_meta.salt, iterations=key_meta.iterations)
 
     @classmethod

@@ -19,7 +19,7 @@ def test_initialize_new_db(tmp_path: Path) -> None:
     new_db_path = tmp_path / "new.bmn"
     password = "test-user-password"
     sut = PasswordsInteractor()
-    sut.initialize_key(password)
+    sut.initialize_key_for_new_db(password)
 
     # Act
     sut.initialize_new_db(new_db_path)
@@ -139,11 +139,11 @@ def test_decrypt_content(tmp_path: Path) -> None:
     # Arrange
     db_path = tmp_path / "new.bmn"
     sut = PasswordsInteractor()
-    sut.initialize_key("test-password")
+    sut.initialize_key_for_new_db("test-password")
     sut.initialize_new_db(db_path)
 
     # Act
-    result = sut.decrypt(db_path, "test-password")
+    result = sut.decrypt(db_path)
 
     # Assert
     assert isinstance(result, list)
@@ -159,14 +159,14 @@ def test_update(tmp_path: Path) -> None:
     # Arrange
     db_path = tmp_path / "new.bmn"
     sut = PasswordsInteractor()
-    sut.initialize_key("test-password")
+    sut.initialize_key_for_new_db("test-password")
     sut.initialize_new_db(db_path)
-    items = sut.decrypt(db_path, "test-password")
+    items = sut.decrypt(db_path)
     items.append(Item.example())
 
     # Act
     sut.update(items, db_path)
 
     # assert
-    loaded_items = sut.decrypt(db_path, "test-password")
+    loaded_items = sut.decrypt(db_path)
     assert len(loaded_items) == 2

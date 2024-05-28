@@ -24,10 +24,10 @@ class Gateway:
         self._passwords_interactor.delete_key()
 
     def init_new_store(self, path: Path, password: str) -> list[Item]:
-        self._passwords_interactor.initialize_key(password)
+        self._passwords_interactor.initialize_key_for_new_db(password)
         self._passwords_interactor.initialize_new_db(path)
-        return self._passwords_interactor.decrypt(path, password)
+        return self._passwords_interactor.decrypt(path)
 
     def load_existent_store(self, path: Path, password: str) -> list[Item]:
-        self._passwords_interactor.initialize_key(password)
-        return self._passwords_interactor.decrypt(path, password)
+        self._passwords_interactor.initialize_key(path, password)
+        return self._passwords_interactor.decrypt(path)

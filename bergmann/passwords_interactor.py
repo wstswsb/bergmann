@@ -91,13 +91,13 @@ class PasswordsInteractor:
         with path.open("wb") as file:
             file.write(bytes_view)
 
-    def decrypt(self, path: Path, master_password: str) -> list[Item]:
+    def load_db_meta(self, path: Path) -> DBMeta:
         raw_db_meta = self.read_raw_db_meta(path)
         self.validate_raw_db_meta(raw_db_meta)
-        db_meta = DBMeta.from_raw_db_meta(raw_db_meta)
-        key_meta = KeyMeta(salt=db_meta.salt, iterations=db_meta.iterations)
-        self.initialize_key(master_password, key_meta)
+        return DBMeta.from_raw_db_meta(raw_db_meta)
 
+    def decrypt(self, path: Path) -> list[Item]:
+        db_meta = self.load_db_meta(path)
         encrypted_content = self.load_encrypted_content(path, db_meta)
         decrypted_content = self.cypher_impl.decrypt(encrypted_content)
         content_hash = hashlib.sha256(decrypted_content).digest()
@@ -120,9 +120,7 @@ class PasswordsInteractor:
         db_meta.content_hash = self._calculate_content_hash(default_content)
         encrypted_content = self._encrypt_content(default_content)
         template_bytes = self._present_template(db_meta, encrypted_content)
-
         path.write_bytes(template_bytes)
-        self._repository = Repository(path)
 
     def file_empty(self, path: Path) -> bool:
         return os.stat(path).st_size == 0
@@ -154,12 +152,18 @@ class PasswordsInteractor:
             )
         )
 
-    def initialize_key(
-        self, master_password: str, key_meta: KeyMeta | None = None
-    ) -> bytes:
-        key_meta = key_meta or KeyMeta()
+    def initialize_key_for_new_db(self, master_password: str) -> None:
+        key_meta = KeyMeta()
         self._cypher_impl = KuzCypher(master_password, key_meta)
-        return key_meta.salt
+
+    def initialize_key(
+        self,
+        path: Path,
+        master_password: str,
+    ) -> None:
+        db_meta = self.load_db_meta(path)
+        key_meta = KeyMeta.from_db_meta(db_meta)
+        self._cypher_impl = KuzCypher(master_password, key_meta)
 
     def delete_key(self) -> None:
         self._cypher_impl = None

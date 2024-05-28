@@ -40,7 +40,7 @@ class Bergmann(App[None]):
             self.notify("file not selected", severity="warning")
             return
         load_db_result = await self._load_db(path)
-        if not load_db_result.content:
+        if load_db_result.content is None:
             self.notify("file not selected", severity="warning")
             return
         if load_db_result.new_db_initialized:

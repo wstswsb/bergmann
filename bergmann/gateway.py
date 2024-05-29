@@ -18,16 +18,19 @@ class Gateway:
         return self._files_helper.is_emtpy(path)
 
     def update(self, path: Path, content: list[Item]) -> None:
-        self._passwords_interactor.update(content, path)
+        self._passwords_interactor.update_items(content)
+        self._passwords_interactor.flush_encrypted_store(path)
 
     def clean(self) -> None:
-        self._passwords_interactor.delete_key()
+        self._passwords_interactor.clean()
 
     def init_new_store(self, path: Path, password: str) -> list[Item]:
+        self._passwords_interactor.initialize_new_store()
         self._passwords_interactor.initialize_key_for_new_db(password)
-        self._passwords_interactor.initialize_new_db(path)
-        return self._passwords_interactor.decrypt(path)
+        self._passwords_interactor.flush_encrypted_store(path)
+        return self._passwords_interactor.get_items()
 
     def load_existent_store(self, path: Path, password: str) -> list[Item]:
         self._passwords_interactor.initialize_key(path, password)
-        return self._passwords_interactor.decrypt(path)
+        self._passwords_interactor.decrypt_store(path)
+        return self._passwords_interactor.get_items()

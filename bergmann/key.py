@@ -1,20 +1,22 @@
-import os
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Self
+from typing import Final, Self
 
-if TYPE_CHECKING:
-    from bergmann.entities.db_meta import DBMeta
+from bergmann.convention import PASSWORDS_HASH_FUNCTION
+from bergmann.entities.header import Header
 
 
-@dataclass(slots=True, frozen=True)
 class KeyMeta:
-    salt: bytes = field(default=os.urandom(16))
-    iterations: int = field(default=150_000)
-    hash_function: str = field(default="sha256", init=False)
+    def __init__(self, salt: bytes, iterations: int):
+        self.salt: Final[bytes] = salt
+        self.iterations: Final[int] = iterations
+        self.hash_function: Final[str] = PASSWORDS_HASH_FUNCTION
 
     @classmethod
-    def from_db_meta(cls, db_meta: "DBMeta") -> Self:
-        return cls(salt=db_meta.salt, iterations=db_meta.iterations)
+    def from_header(cls, header: Header) -> Self:
+        return cls(
+            salt=header.salt_bytes,
+            iterations=int.from_bytes(header.iterations_bytes),
+        )
 
 
 @dataclass(slots=True)

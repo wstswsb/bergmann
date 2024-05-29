@@ -8,9 +8,9 @@ from textual.screen import ModalScreen
 from textual.validation import Length
 from textual.widgets import Button, Footer, Input, Label
 
+from bergmann.common.exceptions import IntegrityError, InvalidHeader
 from bergmann.di import di
 from bergmann.entities.item import Item
-from bergmann.passwords_interactor import IntegrityError, InvalidHeader
 from bergmann.ui.helpers import check_input_value_valid
 
 

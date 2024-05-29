@@ -1,12 +1,16 @@
 import pytest
 
+from bergmann.convention import DB_ITERATIONS_BYTES
 from bergmann.crypto.kuzcypher import KuzCypher
 from bergmann.key import KeyMeta
 
 
 @pytest.fixture(scope="session")
 def sut() -> KuzCypher:
-    key_meta = KeyMeta(salt=b"0123456789abcdef")
+    key_meta = KeyMeta(
+        salt=b"0123456789abcdef",
+        iterations=int.from_bytes(DB_ITERATIONS_BYTES),
+    )
     return KuzCypher("test-password", key_meta)
 
 

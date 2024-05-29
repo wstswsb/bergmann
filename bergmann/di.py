@@ -5,16 +5,16 @@ from textual.validation import ValidationResult
 
 from bergmann import failures_presenter
 from bergmann.files_helper import FilesHelper
-from bergmann.gateway import Gateway
-from bergmann.passwords_interactor import PasswordsInteractor
+from bergmann.interactor import Interactor
+from bergmann.passwords_model import PasswordsModel
 
 __all__ = ["di"]
 
 
 class DI:
     @cached_property
-    def passwords_interactor(self) -> PasswordsInteractor:
-        return PasswordsInteractor()
+    def passwords_interactor(self) -> PasswordsModel:
+        return PasswordsModel()
 
     @cached_property
     def failures_presenter(self) -> Callable[[ValidationResult], str]:
@@ -25,10 +25,10 @@ class DI:
         return FilesHelper()
 
     @cached_property
-    def gateway(self) -> Gateway:
-        return Gateway(
+    def gateway(self) -> Interactor:
+        return Interactor(
             files_helper=self.files_helper,
-            passwords_interactor=self.passwords_interactor,
+            passwords_model=self.passwords_interactor,
         )
 
 

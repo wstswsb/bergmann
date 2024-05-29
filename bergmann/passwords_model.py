@@ -19,7 +19,7 @@ from bergmann.entities.store_meta import StoreMeta
 from bergmann.key import KeyMeta
 
 
-class PasswordsInteractor:
+class PasswordsModel:
     def __init__(self):
         self._cypher_impl: ICypher | None = None
         self._store: Store | None = None
@@ -32,6 +32,10 @@ class PasswordsInteractor:
         if self._cypher_impl is None:
             raise ValueError("there no ICypher implementation set")
         return self._cypher_impl
+
+    @cypher_impl.setter
+    def cypher_impl(self, value: ICypher) -> None:
+        self._cypher_impl = value
 
     @property
     def store(self) -> Store:

@@ -5,14 +5,14 @@ from bergmann.entities.item import Item
 
 
 @dataclass(frozen=True, slots=True)
-class LoadDBResult:
-    content: list[Item] | None
+class LoadItemsResult:
+    items: list[Item] | None
     new_db_initialized: bool
 
     @classmethod
-    def new_db(cls, content: list[Item] | None) -> Self:
-        return cls(content, new_db_initialized=True)
+    def new_store(cls, items: list[Item] | None) -> Self:
+        return cls(items, new_db_initialized=True)
 
     @classmethod
-    def existent_db(cls, content: list[Item] | None) -> Self:
-        return cls(content, new_db_initialized=False)
+    def existent_store(cls, items: list[Item] | None) -> Self:
+        return cls(items, new_db_initialized=False)

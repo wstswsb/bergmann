@@ -8,7 +8,7 @@ from textual.widgets import Footer
 from bergmann.common.ru_keys import RU_KEY_FOR_EN__F
 from bergmann.di import di
 from bergmann.entities.item import Item
-from bergmann.entities.load_db_result import LoadDBResult
+from bergmann.entities.load_db_result import LoadItemsResult
 from bergmann.ui.widgets.passwords_modal.initialize_new_db_modal import (
     InitializeNewStoreModal,
 )
@@ -40,12 +40,12 @@ class Bergmann(App[None]):
             self.notify("file not selected", severity="warning")
             return
         load_db_result = await self._load_db(path)
-        if load_db_result.content is None:
+        if load_db_result.items is None:
             self.notify("file not selected", severity="warning")
             return
         if load_db_result.new_db_initialized:
             self.notify(f"new db initialized: {path=}")
-        await self._show_passwords_explorer(load_db_result.content, path)
+        await self._show_passwords_explorer(load_db_result.items, path)
         self._gateway.clean()
 
     async def _show_passwords_explorer(self, content: list[Item], path: Path) -> None:
@@ -54,10 +54,10 @@ class Bergmann(App[None]):
     async def _select_file(self) -> Path | None:
         return await self.app.push_screen_wait(SelectFileModal())
 
-    async def _load_db(self, path: Path) -> LoadDBResult:
-        if not self._gateway.is_file_empty(path):
-            return LoadDBResult.existent_db(await self._load_existent_db(path))
-        return LoadDBResult.new_db(await self._initialize_new_db(path))
+    async def _load_db(self, path: Path) -> LoadItemsResult:
+        if not self._gateway.is_store_initialized(path):
+            return LoadItemsResult.existent_store(await self._load_existent_db(path))
+        return LoadItemsResult.new_store(await self._initialize_new_db(path))
 
     async def _initialize_new_db(self, path: Path) -> list[Item] | None:
         return await self.app.push_screen_wait(InitializeNewStoreModal(path))
